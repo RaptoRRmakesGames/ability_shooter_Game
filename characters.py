@@ -14,6 +14,7 @@ class PhysicsEntity(pygame.sprite.Sprite):
 
         self.create_physics(pos,**kwargs)
         self.create_animation(asset_lib, **kwargs)
+        
 
     def update_physics(self, update_gravity, own_movement, jump=False):
         self.on_ground = self.position.y > self.ground_level
@@ -59,6 +60,16 @@ class PhysicsEntity(pygame.sprite.Sprite):
                 self.velocity.y = self.max_speed 
             if self.velocity.y < self.max_speed *-1:
                 self.velocity.y = self.max_speed *-1
+                
+                
+        
+        
+        
+        
+
+    def affect_by_scroll(self, scroll):
+        self.x , self.y  = self.position
+        self.final_pos = self.position - pygame.math.Vector2(scroll) -  pygame.math.Vector2(50,60)
  
     def create_physics(self,pos, **kwargs):
         global GRAVITY, GROUND_LEVEL
@@ -76,6 +87,8 @@ class PhysicsEntity(pygame.sprite.Sprite):
 
         self.position = pygame.math.Vector2(pos)
         self.on_ground = self.position.y > self.ground_level
+        
+        self.final_pos = pygame.math.Vector2()
 
     def animate(self):
         self.update_anim_info()
@@ -148,14 +161,15 @@ class Player(PhysicsEntity):
 
         self.not_runned_anims = ["punch"]
 
-    def update(self, screen):
+    def update(self, screen, scroll):
+        self.affect_by_scroll(scroll)
         self.animate()
         self.control()
-        self.update_physics(True, True, True)
+        self.update_physics(False, True, False)
 
-        print(self.velocity, self.gravity_force)
+        #print(self.velocity, self.gravity_force)
 
-        screen.blit(self.image, self.position)
+        screen.blit(self.image, self.final_pos)
 
     def control(self):
         keys = pygame.key.get_pressed()
@@ -182,6 +196,6 @@ plr = Player(
     asset_lib=IMAGES,
     anim_group="player",
     anim_names={"idle": (400, True), "run": (200, True), "punch": (500, False)},
-    mass=10,
+    mass=8,
     speed=.5,
 )
