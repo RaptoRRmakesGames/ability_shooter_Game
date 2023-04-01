@@ -186,8 +186,8 @@ class ShootController(pygame.sprite.Sprite):
         for bullet in self.bullet_list:
             bullet.update(scroll, screen)
             #if bullet.on_screen:
-            #screen.blit(bullet.image, bullet.position)
-            pygame.draw.circle(screen, (255,255,255), bullet.final_pos , 50)
+            screen.blit(bullet.image, bullet.final_pos)
+            pygame.draw.circle(screen, (255,0,255), bullet.final_pos , 50)
         
                 
             
@@ -220,7 +220,6 @@ class Player(PhysicsEntity):
         self.shooter.update_bullets(screen, scroll)
 
         #print(self.velocity, self.gravity_force)
-        
         if pygame.key.get_pressed()[K_r] :
             if not self.shot:
                 self.shooter.shoot()
