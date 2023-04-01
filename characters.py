@@ -60,16 +60,10 @@ class PhysicsEntity(pygame.sprite.Sprite):
                 self.velocity.y = self.max_speed 
             if self.velocity.y < self.max_speed *-1:
                 self.velocity.y = self.max_speed *-1
-                
-                
-        
-        
-        
-        
 
     def affect_by_scroll(self, scroll):
-        self.x , self.y  = self.position
         self.final_pos = self.position - pygame.math.Vector2(scroll) -  pygame.math.Vector2(50,60)
+        self.x, self.y = self.position
  
     def create_physics(self,pos, **kwargs):
         global GRAVITY, GROUND_LEVEL
@@ -151,8 +145,59 @@ class PhysicsEntity(pygame.sprite.Sprite):
             self.index = 0 
             self.update_anim_info()
             self.next_frame = pygame.time.get_ticks() + self.anim_cooldown
+            
+class Bullet():
+    def __init__(self,shooter ,target_pos, speed):
+        
+        self.shooter = shooter
+        
+        self.position = self.shooter.position.copy()
+        
+        self.image = pygame.transform.scale(IMAGES["player"]["idle"][0], (5,5))
+        
+        self.add_vel = self.position.move_towards(pygame.math.Vector2(target_pos), speed) * 5
+        
+    def affect_by_scroll(self, scroll):
+        self.final_pos = self.position - pygame.math.Vector2(scroll)
+        
+        
+    def update(self, scroll, screen):
+        self.on_screen = pygame.Rect.colliderect(self.image.get_rect(center=self.position), screen.get_rect(topleft=(0,0)))
+        
+        self.position += self.add_vel
+        
+        
+        #self.final_pos = self.position #- pygame.math.Vector2(scroll)
+        self.affect_by_scroll(scroll)
+        
+                    
+class ShootController(pygame.sprite.Sprite):
+    def __init__(self, owner):
+        pygame.sprite.Sprite.__init__(self)
 
+        self.owner = owner
+        self.bullet_list = []
+        
+    def update_self(self):
+        self.position = self.owner.final_pos
+        
+    def update_bullets(self, screen, scroll):
+        
+        for bullet in self.bullet_list:
+            bullet.update(scroll, screen)
+            #if bullet.on_screen:
+            #screen.blit(bullet.image, bullet.position)
+            pygame.draw.circle(screen, (255,255,255), bullet.final_pos , 50)
+        
+                
+            
+            
+    def shoot(self, speed=3):
 
+        self.bullet_list.append(Bullet(self, pygame.mouse.get_pos(), speed))
+        
+        
+        
 class Player(PhysicsEntity):
     def __init__(self, pos, **kwargs):
         super().__init__(pos, kwargs.pop('asset_lib'), **kwargs)
@@ -160,14 +205,28 @@ class Player(PhysicsEntity):
         self.not_idled_anims = ["punch"]
 
         self.not_runned_anims = ["punch"]
+        
+        self.shooter = ShootController(self)
+        
+        self.shot = True
+        
 
     def update(self, screen, scroll):
         self.affect_by_scroll(scroll)
         self.animate()
         self.control()
         self.update_physics(False, True, False)
+        self.shooter.update_self()
+        self.shooter.update_bullets(screen, scroll)
 
         #print(self.velocity, self.gravity_force)
+        
+        if pygame.key.get_pressed()[K_r] :
+            if not self.shot:
+                self.shooter.shoot()
+            
+        else:
+            self.shot = False
 
         screen.blit(self.image, self.final_pos)
 
@@ -187,9 +246,6 @@ class Player(PhysicsEntity):
             self.flip = True
         else:
             self.flip = False
-
-        if keys[K_r]:
-            self.set_animation("punch")
 
 plr = Player(
     (200, 200),

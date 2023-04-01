@@ -11,7 +11,6 @@ def render():
     screen.fill((0,0,255))
     
     
-    
     pygame.draw.rect(screen, (255,0,0),pygame.Rect(50 - camera.scroll[0],50 - camera.scroll[1], 200,200))
 
     characters.plr.update(screen, camera.scroll)
