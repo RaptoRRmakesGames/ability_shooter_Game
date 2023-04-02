@@ -5,9 +5,6 @@ import math, characters, cam
 
 screen = pygame.display.set_mode((800,600))
 
-test_block = characters.Block((100,200), (400,80), (255,255,255))
-test_block2 = characters.Block((100,150), (400,80), (255,0,255))
-
 camera = cam.Camera(4, screen)
 
 def checkcollide(it1, it2, tolerance=115):
@@ -27,32 +24,25 @@ def checkcollide(it1, it2, tolerance=115):
         
         return {"bottom" : False, "left" : False,"right" : False,"top" : False,}
         
-
+block_list = [characters.Block((400,400), (600,400), (255,255,255))]
         
 
 def render():
     screen.fill((0,0,255))
     
-    test_block.update(screen, camera.scroll)
-    test_block2.update(screen, camera.scroll)
+    characters.plr.update(screen, camera.scroll, block_list)
 
-    characters.plr.update(screen, camera.scroll)
-    pygame.draw.rect(screen, (25,25,25), characters.plr.rect)
+    #pygame.draw.rect(screen, (25,25,25), characters.plr.rect)
     
     
+    for block in block_list:
+        block.update(screen, camera.scroll)
     
-    camera.follow(characters.plr, 1, speed= 1,)
+    camera.follow(characters.plr, 1, speed= 32,)
 
 
 def collisions():
     
-    if characters.plr.rect.colliderect(test_block.rect):
-        if abs(test_block.rect.bottom - characters.plr.rect.top) > 5:
-            characters.plr.position.y -= characters.plr.velocity.y + 0.5
-            characters.plr.velocity.y = 0
-            print("yes2")
-        if abs(test_block.rect.top - characters.plr.rect.bottom) > 5:
-            characters.plr.position.y += characters.plr.velocity.y + 0.5
-            characters.plr.velocity.y = 0
-            print("yes2") 
-        print("YEs")
+    pass
+
+

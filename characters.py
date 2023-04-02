@@ -4,7 +4,7 @@ from random import randint, choice, uniform
 from assets import IMAGES
 import math
 
-GRAVITY = 1.3
+GRAVITY = 1
 GROUND_LEVEL = 300
 
 class PhysicsEntity(pygame.sprite.Sprite):
@@ -17,7 +17,8 @@ class PhysicsEntity(pygame.sprite.Sprite):
         
 
     def update_physics(self, update_gravity, own_movement, jump=False):
-        self.on_ground = self.position.y > self.ground_level
+        self.next_x = self.velocity.x 
+        self.next_y = self.velocity.y 
 
         if update_gravity:
             self.gravity_force.y += self.gravity * self.mass / 100
@@ -25,12 +26,12 @@ class PhysicsEntity(pygame.sprite.Sprite):
             if self.gravity_force.y > 9.8:
                 self.gravity_force.y = 9.8
 
-            if not self.position.y > self.ground_level:
 
+            if  not self.on_ground:
                 self.position.y += self.gravity_force.y
 
         if own_movement:
-
+            
             keys = pygame.key.get_pressed()
 
             self.velocity.x += (keys[K_d] - keys[K_a]) * self.speed
@@ -39,20 +40,14 @@ class PhysicsEntity(pygame.sprite.Sprite):
             else:
                 if keys[K_SPACE] and self.on_ground:
                     self.jumped = True
-                if not keys[K_SPACE] and self.jumped and self.on_ground:
+                    self.on_ground = False
                     self.velocity.y = -((self.speed - self.friction) * 40) 
-                    self.jumped = False
+ 
+        print(self.on_ground, self.jumped)
 
         self.velocity = self.velocity.move_towards((0,0), self.friction)
         
         self.sum_y_vel = round(self.velocity.y + self.gravity_force.y)
-        
-        self.position += self.velocity
-
-        if self.position.y > self.ground_level:
-            self.gravity_force.y = 0 
-            self.velocity.y = 0
-            self.position.y -= self.velocity.y
 
         if self.velocity.x > self.max_speed:
             self.velocity.x = self.max_speed 
@@ -86,7 +81,7 @@ class PhysicsEntity(pygame.sprite.Sprite):
         self.max_speed =  self.mass  / (self.speed * 5)
 
         self.position = pygame.math.Vector2(pos)
-        self.on_ground = self.position.y > self.ground_level
+        self.on_ground = True
         
         self.final_pos = pygame.math.Vector2()
 
@@ -172,11 +167,9 @@ class Block(pygame.sprite.Sprite):
         
     def update(self, screen, scroll):
         
-        self.rect.center = self.pos - pygame.math.Vector2(scroll)
+        self.rect.topleft = self.pos - pygame.math.Vector2(scroll)
         
-        pygame.draw.rect(screen, self.color, self.rect)
-        
-        
+        pygame.draw.rect(screen, self.color, self.rect)    
     
 class Bullet():
     def __init__(self,shooter ,target_pos, speed):
@@ -249,15 +242,19 @@ class Player(PhysicsEntity):
         self.shot = True
         
 
-    def update(self, screen, scroll):
+    def update(self, screen, scroll, block_list):
+        
         self.affect_by_scroll(scroll)
         self.animate()
         self.update_physics(True, True, True)
         self.control()
+        self.walls(block_list, screen)
         self.shooter.update_self()
         self.shooter.update_bullets(screen, scroll)
-
-        ##print(self.velocity, self.gravity_force)
+        
+        self.position.x += self.next_x
+        self.position.y += self.next_y
+        
         if pygame.mouse.get_pressed()[0] :
             if not self.shot:
                 self.shooter.shoot()
@@ -270,8 +267,6 @@ class Player(PhysicsEntity):
 
     def control(self):
         keys = pygame.key.get_pressed()
-
-        buttons = [keys[K_a], keys[K_d]]
         
         self.rect = self.image.get_rect(center=self.final_pos + pygame.math.Vector2(20,30))
         
@@ -286,8 +281,7 @@ class Player(PhysicsEntity):
                 self.set_animation("run")
                 if not keys[K_a]:
                     self.flip = False
-                
-                
+
             else:
                 if not self.animation in self.not_idled_anims:
                     self.set_animation("idle")
@@ -295,20 +289,27 @@ class Player(PhysicsEntity):
         if self.sum_y_vel > 0:
             self.set_animation("fall")
             
-            
-        if self.jumped :#and self.sum_y_vel < 0:
+        if self.jumped :
             self.set_animation("jump")
-            
+
+    def walls(self, block_list, screen):
                         
+        for block in block_list:
+            if block.rect.colliderect(self.rect.x + self.next_x, self.rect.y, self.image.get_width(), self.image.get_height()):
 
-
-
-            
-        #print(self.animation, self.sum_y_vel, keys[K_SPACE] and self.sum_y_vel < 0)
+                self.next_x = 0
                 
-
-
-
+            if block.rect.colliderect(self.rect.x , self.next_y  + self.velocity.y, self.image.get_width(), self.image.get_height()):
+                
+                if self.velocity.y >= 0:
+                    self.next_y = block.rect.top - self.rect.bottom
+                    self.velocity.y  = 0 
+                    self.on_ground = True
+                    
+                if self.velocity.y < 0:
+                    self.next_y = block.rect.bottom - self.rect.top
+                    self.velocity.y = 0 
+                
 plr = Player(
     (200, 200),
     asset_lib=IMAGES,
