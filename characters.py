@@ -161,6 +161,22 @@ class PhysicsEntity(pygame.sprite.Sprite):
             self.index = 0 
             self.update_anim_info()
             self.next_frame = pygame.time.get_ticks() + self.anim_cooldown
+            
+class Block(pygame.sprite.Sprite):
+    def __init__(self, pos, size, color):
+        
+        self.pos = pygame.math.Vector2(pos) 
+        self.rect = pygame.Rect(pos[0], pos[1], size[0], size[1])
+        self.size = size
+        self.color = color
+        
+    def update(self, screen, scroll):
+        
+        self.rect.center = self.pos - pygame.math.Vector2(scroll)
+        
+        pygame.draw.rect(screen, self.color, self.rect)
+        
+        
     
 class Bullet():
     def __init__(self,shooter ,target_pos, speed):
@@ -176,7 +192,7 @@ class Bullet():
         
         
         angle = math.atan2(target_pos[1] - self.shooter.owner.final_pos.y -50, target_pos[0] - self.shooter.owner.final_pos.x- 50)
-        self.velocity =( pygame.math.Vector2(math.cos(angle) - self.shooter.owner.velocity.x , math.sin(angle) - self.shooter.owner.velocity.y ))* speed
+        self.velocity =( pygame.math.Vector2(math.cos(angle) , math.sin(angle)  ))* speed
         
         
 
@@ -214,7 +230,7 @@ class ShootController(pygame.sprite.Sprite):
 
 
             
-    def shoot(self, speed=3):
+    def shoot(self, speed=6):
 
         self.bullet_list.append(Bullet(self, pygame.mouse.get_pos(), speed))
         
@@ -241,7 +257,7 @@ class Player(PhysicsEntity):
         self.shooter.update_self()
         self.shooter.update_bullets(screen, scroll)
 
-        #print(self.velocity, self.gravity_force)
+        ##print(self.velocity, self.gravity_force)
         if pygame.mouse.get_pressed()[0] :
             if not self.shot:
                 self.shooter.shoot()
@@ -256,6 +272,10 @@ class Player(PhysicsEntity):
         keys = pygame.key.get_pressed()
 
         buttons = [keys[K_a], keys[K_d]]
+        
+        self.rect = self.image.get_rect(center=self.final_pos + pygame.math.Vector2(20,30))
+        
+        
 
         if not self.animation in self.not_runned_anims:
             if keys[K_a]:
@@ -284,7 +304,7 @@ class Player(PhysicsEntity):
 
 
             
-        print(self.animation, self.sum_y_vel, keys[K_SPACE] and self.sum_y_vel < 0)
+        #print(self.animation, self.sum_y_vel, keys[K_SPACE] and self.sum_y_vel < 0)
                 
 
 

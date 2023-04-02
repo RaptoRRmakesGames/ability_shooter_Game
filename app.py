@@ -1,6 +1,6 @@
 import pygame 
 from pygame.locals import *
-from game import render
+from game import render, collisions
 
 
 clock = pygame.time.Clock()
@@ -11,6 +11,7 @@ while run:
     clock.tick(fps)
 
     render()
+    collisions()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
