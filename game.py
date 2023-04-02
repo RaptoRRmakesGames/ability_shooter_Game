@@ -15,5 +15,5 @@ def render():
 
     characters.plr.update(screen, camera.scroll)
     
-    camera.follow(characters.plr, 1, speed= 32,)
+    camera.follow(characters.plr, 1, speed= 1,)
 
