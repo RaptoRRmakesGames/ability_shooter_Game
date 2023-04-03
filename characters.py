@@ -304,18 +304,18 @@ class Player(PhysicsEntity):
                 
             if block.rect.colliderect(self.rect.x , self.next_y  + self.next_y, self.image.get_width(), self.image.get_height()):
                 
-                if self.sum_y_vel <= 0:
-                    
-                    self.rect.top = block.rect.bottom  
-                    self.velocity.y  = 0 
-                    self.next_y= 0
-                    
-                    
                 if self.sum_y_vel > 0:
-                    self.rect.bottom =  block.rect.top - 64
-                    self.on_ground = True
-                    self.velocity.y = 0 
-                    self.next_y= 0
+                    
+                    self.rect.bottom = block.rect.top  
+                    #self.velocity.y  = 0 
+                    #self.next_y= 0
+                    self.gravity_force.y = 0 
+                    
+                elif self.sum_y_vel < 0:
+                    self.rect.top =  block.rect.bottom - 64
+                    #self.on_ground = True
+                    self.gravity_force.y = 0 
+                    #self.next_y= 0
                     
         self.track_pos = pygame.math.Vector2(self.rect.center)
                 
