@@ -24,7 +24,7 @@ def checkcollide(it1, it2, tolerance=115):
         
         return {"bottom" : False, "left" : False,"right" : False,"top" : False,}
         
-block_list = [characters.Block((400,400), (600,400), (255,255,255))]
+block_list = [characters.Block((200,400), (600,400), (255,255,255))]
         
 
 def render():

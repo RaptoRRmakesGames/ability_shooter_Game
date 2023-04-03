@@ -264,7 +264,7 @@ class Player(PhysicsEntity):
             self.shot = False
 
         screen.blit(self.image, self.rect.topleft)
-        pygame.draw.rect(screen, (255,0,255), self.rect)
+        #pygame.draw.rect(screen, (255,0,255), self.rect)
         #screen.blit(self.image, self.final_pos)
         
 
