@@ -310,12 +310,15 @@ class Player(PhysicsEntity):
                     #self.velocity.y  = 0 
                     #self.next_y= 0
                     self.gravity_force.y = 0 
+                    self.on_ground = True
                     
                 elif self.sum_y_vel < 0:
                     self.rect.top =  block.rect.bottom - 64
                     #self.on_ground = True
                     self.gravity_force.y = 0 
                     #self.next_y= 0
+            else:
+                self.on_ground = False
                     
         self.track_pos = pygame.math.Vector2(self.rect.center)
                 
