@@ -24,10 +24,10 @@ class Camera:
         screen_center_x = self.screen.get_width()/2    
         screen_center_y = self.screen.get_height()/2
         
-        if obj.x  - self.scroll[0] != screen_center_x:
+        if obj.rect.x  - self.scroll[0] != screen_center_x:
             self.scroll[0] += ((obj.x - (self.scroll[0]+screen_center_x))/speed) * dt
             
-        if obj.y  - self.scroll[1] != screen_center_y:
+        if obj.rect.y  - self.scroll[1] != screen_center_y:
             self.scroll[1] += ((obj.y - (self.scroll[1]+screen_center_x))/speed) * dt
 
 

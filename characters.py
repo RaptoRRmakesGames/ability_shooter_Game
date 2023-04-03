@@ -43,7 +43,7 @@ class PhysicsEntity(pygame.sprite.Sprite):
                     self.on_ground = False
                     self.velocity.y = -((self.speed - self.friction) * 40) 
  
-        print(self.on_ground, self.jumped)
+        #print(self.on_ground, self.jumped)
 
         self.velocity = self.velocity.move_towards((0,0), self.friction)
         
@@ -263,7 +263,10 @@ class Player(PhysicsEntity):
         else:
             self.shot = False
 
-        screen.blit(self.image, self.final_pos)
+        screen.blit(self.image, self.rect.topleft)
+        pygame.draw.rect(screen, (255,0,255), self.rect)
+        #screen.blit(self.image, self.final_pos)
+        
 
     def control(self):
         keys = pygame.key.get_pressed()
@@ -299,16 +302,22 @@ class Player(PhysicsEntity):
 
                 self.next_x = 0
                 
-            if block.rect.colliderect(self.rect.x , self.next_y  + self.velocity.y, self.image.get_width(), self.image.get_height()):
+            if block.rect.colliderect(self.rect.x , self.next_y  + self.next_y, self.image.get_width(), self.image.get_height()):
                 
-                if self.velocity.y >= 0:
-                    self.next_y = block.rect.top - self.rect.bottom
-                    self.velocity.y  = 0 
-                    self.on_ground = True
+                if self.sum_y_vel <= 0:
                     
-                if self.velocity.y < 0:
-                    self.next_y = block.rect.bottom - self.rect.top
+                    self.rect.top = block.rect.bottom  
+                    self.velocity.y  = 0 
+                    self.next_y= 0
+                    
+                    
+                if self.sum_y_vel > 0:
+                    self.rect.bottom =  block.rect.top - 64
+                    self.on_ground = True
                     self.velocity.y = 0 
+                    self.next_y= 0
+                    
+        self.track_pos = pygame.math.Vector2(self.rect.center)
                 
 plr = Player(
     (200, 200),
